@@ -1,22 +1,22 @@
-import data
+from data import Data
 # import model
 from model import Net
 
 net = Net()
 for epoch in range(2):  # loop over the dataset multiple times
     running_loss = 0.0
-    for i, data in enumerate(trainfolder, 0):
+    for i, data in enumerate(Data.trainloader, 0):
         # get the inputs; data is a list of [inputs, labels]
         inputs, labels = data
 
         # zero the parameter gradient
-        optimizer.zero_grad()
+        net.optimizer.zero_grad()
 
         # forward + backward + optimize
         outputs = net(inputs)
-        loss = criterion(outputs, labels)
+        loss = net.criterion(outputs, labels)
         loss.backward()
-        optimizer.step()
+        net.optimizer.step()
 
         # print statistics
         running_loss += loss.item()

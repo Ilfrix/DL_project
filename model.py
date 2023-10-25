@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.optim as optim
 
 class Net(nn.Module):
     def __init__(self):
@@ -11,6 +12,8 @@ class Net(nn.Module):
         self.fc1 = nn.Linear(16 * 5 * 5, 120)
         self.fc2 = nn.Linear(120, 84)
         self.fc3 = nn.Linear(84, 10)
+        self.criterion = nn.CrossEntropyLoss()
+        self.optimizer = optim.SGD(super().parameters(), lr=0.001, mementum=0.9)
 
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))

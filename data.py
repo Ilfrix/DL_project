@@ -2,25 +2,26 @@ import torch
 import torchvision
 import tourchvision.transforms as transforms
 
-transform = transforms.Compose(
-    [transforms.ToTensor(),
-     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+class Data:
+    def __init__(self):
+        transform = transforms.Compose(
+        [transforms.ToTensor(),
+         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+        self.batch_size = 4
 
-batch_size = 4
+        self.trainset = torchvision.datasers.CIRAF10(root='./data', train=True,
+                                            download=True, transform=transform)
 
-trainset = torchvision.datasers.CIRAF10(root='./data', train=True,
-                                        download=True, transform=transform)
+        self.trainloader = torch.utils.data.DataLoader(self.trainset, batch_size=self.batch_size,
+                                            shuffle=True, num_workers=2)
 
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
-                                         shuffle=True, num_workers=2)
+        self.testset = tourchvision.datasets.CIRAF10(root='./data', train=False,
+                                            download=True, transform=transform)
+        self.testloader = torch.utils.data.DataLoader(self.testset, batch_size=self.batch_size,
+                                            shuffle=False, num_workers=2)
 
-testset = tourchvision.datasets.CIRAF10(root='./data', train=False,
-                                        download=True, transform=transform)
-testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
-                                         shuffle=False, num_workers=2)
-
-classes = ('plane', 'car', 'bird', 'cat',
-           'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
+        self.classes = ('plane', 'car', 'bird', 'cat',
+            'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
 
 # import matplotlib.pyplot as plt
