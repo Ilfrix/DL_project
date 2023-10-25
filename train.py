@@ -3,9 +3,10 @@ from data import Data
 from model import Net
 
 net = Net()
+dataset = Data()
 for epoch in range(2):  # loop over the dataset multiple times
     running_loss = 0.0
-    for i, data in enumerate(Data.trainloader, 0):
+    for i, data in enumerate(dataset.trainloader, 0):
         # get the inputs; data is a list of [inputs, labels]
         inputs, labels = data
 

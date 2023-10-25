@@ -1,6 +1,6 @@
 import torch
 import torchvision
-import tourchvision.transforms as transforms
+import torchvision.transforms as transforms
 
 class Data:
     def __init__(self):
@@ -9,13 +9,13 @@ class Data:
          transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
         self.batch_size = 4
 
-        self.trainset = torchvision.datasers.CIRAF10(root='./data', train=True,
+        self.trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
                                             download=True, transform=transform)
 
         self.trainloader = torch.utils.data.DataLoader(self.trainset, batch_size=self.batch_size,
                                             shuffle=True, num_workers=2)
 
-        self.testset = tourchvision.datasets.CIRAF10(root='./data', train=False,
+        self.testset = torchvision.datasets.CIFAR10(root='./data', train=False,
                                             download=True, transform=transform)
         self.testloader = torch.utils.data.DataLoader(self.testset, batch_size=self.batch_size,
                                             shuffle=False, num_workers=2)
