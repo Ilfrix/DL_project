@@ -4,9 +4,10 @@ import torch.nn.functional as F
 import lightning as L
 import torch.optim as optim
 from torchmetrics.functional import accuracy
+import wandb
   
 class LitModel(L.LightningModule):
-  def __init__(self, channels, width, height, num_classes, hidden_size=64, learning_rate=2e-4):
+  def __init__(self, channels, width, height, num_classes, hidden_size=64, learning_rate=1e-3):
     super().__init__()
 
     self.channels = channels
@@ -15,6 +16,7 @@ class LitModel(L.LightningModule):
     self.num_classes = num_classes
     self.hidden_size = hidden_size
     self.learning_rate = learning_rate
+    self.scheduler = optim.ExponentialLRcon(self.figure_optimizer(), gamma=0.9)
 
     self.model = nn.Sequential(
         nn.Conv2d(3, 6, 5),
@@ -47,9 +49,20 @@ class LitModel(L.LightningModule):
     loss = F.nll_loss(logits, y)
     preds = torch.argmax(logits, dim=1)
     acc = accuracy(preds, y, task="multiclass", num_classes=self.num_classes)
+    self.scheduler.step()
+    if (acc > 0.4):
+      self.learning_rate = 5e-4
+    if (acc > 0.5):
+      self.learning_rate = 2e-4
+    if (acc > 0.55):
+      self.learning_rate = 1e-4
+    if (acc > 0.6):
+      self.learning_rate = 1e-5
+    
+    wandb.log({"accuracy": acc, "loss": loss})
     self.log("val_loss", loss, prog_bar=True)
     self.log("val_acc", acc, prog_bar=True)
 
-  def configure_optimizers(self): # переписать на Adam
+  def configure_optimizers(self):
     optimizer = optim.Adam(self.parameters(), lr = self.learning_rate)
     return optimizer
