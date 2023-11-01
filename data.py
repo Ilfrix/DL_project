@@ -1,45 +1,45 @@
 import torch
 import torchvision
 import torchvision.transforms as transforms
+from torch.utils.data import DataLoader, random_split
+import lightning as L
 
-class Data:
-    def __init__(self):
-        transform = transforms.Compose(
-        [transforms.ToTensor(),
-         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-        self.batch_size = 4
+class MyDataModule(L.LightningDataModule):
+  def __init__(self):
+      super().__init__()
+      self.BATCH_SIZE = 100
+      self.data_dir = "data_dir"
+      self.transform = transforms.Compose(
+          [
+              transforms.ToTensor(),
+              transforms.Normalize((0.1307,), (0.3081,)),
+          ]
+      )
+      self.train_data = None
+      self.test_data = None
+      self.val_data = None
+      self.dims = (1, 28, 28)
+      self.num_classes = 10
 
-        self.trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
-                                            download=True, transform=transform)
-
-        self.trainloader = torch.utils.data.DataLoader(self.trainset, batch_size=self.batch_size,
-                                            shuffle=True, num_workers=2)
-
-        self.testset = torchvision.datasets.CIFAR10(root='./data', train=False,
-                                            download=True, transform=transform)
-        self.testloader = torch.utils.data.DataLoader(self.testset, batch_size=self.batch_size,
-                                            shuffle=False, num_workers=2)
-
-        self.classes = ('plane', 'car', 'bird', 'cat',
-            'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
+  def prepare_data(self):
+    torchvision.datasets.CIFAR10(self.data_dir, train=True, download=True)
+    torchvision.datasets.CIFAR10(self.data_dir, train=False, download=True)
 
 
-# import matplotlib.pyplot as plt
-# import numpy as np
+  def setup(self, stage=None):
+    if stage == 'fit' or stage is None:
+      data_full = torchvision.datasets.CIFAR10(self.data_dir, train=True, transform=self.transform)
+      self.train_data , self.val_data = random_split(data_full, [45000, 5000])
 
-# # functions to show an image
+    if stage == "test" or stage is None:
+      self.test_data = torchvision.datasets.CIFAR10(self.data_dir, train=False, transform=self.transform)
 
-# def imshow(img):
-#     img = img / 2 + 0.5
-#     npimg = img.numpy()
-#     plt.imshow(np.transpose(npimg, (1, 2, 2)))
-#     plt.show()
 
-# # get some random training images
-# dataiter = iter(trainloader)
-# images, labels = next(dataiter)
+  def train_dataloader(self):
+    return DataLoader(self.train_data, batch_size=self.BATCH_SIZE)
 
-# # show images
-# imshow(torchvision.utils.make_grid(images))
-# # print labels
-# print(' '.join(f'{classes[labels[j]]:5s}' for j in range(batch_size)))
+  def test_dataloader(self):
+    return DataLoader(self.test_data, batch_size=self.BATCH_SIZE)
+
+  def val_dataloader(self):
+    return DataLoader(self.val_data, batch_size=self.BATCH_SIZE)
